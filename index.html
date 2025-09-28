@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrustedRoutes - Smart Route Analytics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #2a5298;
+            --primary-dark: #1e3c72;
+            --accent-green: #38ef7d;
+            --accent-orange: #ff9a56;
+            --text-dark: #333;
+            --text-light: #666;
+            --bg-light: #f8f9fa;
+            --white: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: var(--white);
+            box-shadow: var(--shadow);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 70px;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+            height: 100%;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-blue);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: var(--text-dark);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: var(--primary-blue);
+            color: var(--white);
+        }
+
+        .main-content {
+            margin-top: 70px;
+            padding: 2rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 90px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-blue);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-light);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-blue);
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            margin-top: 0.5rem;
+        }
+
+        .btn {
+            background: var(--primary-blue);
+            color: var(--white);
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0.25rem;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-large {
+            padding: 1.5rem 3rem;
+            font-size: 1.2rem;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+
+        .form-container {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-section {
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-section h3 {
+            color: var(--primary-blue);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
+
+        .rate-suggestion {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            display: none;
+        }
+
+        .rate-suggestion h4 {
+            color: white !important;
+            margin-bottom: 0.5rem;
+        }
+
+        .results-container {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-top: 2rem;
+        }
+
+        .profit-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            color: var(--white);
+        }
+
+        .profit-positive {
+            background: #28a745;
+        }
+
+        .profit-negative {
+            background: #dc3545;
+        }
+
+        .route-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .detail-card {
+            background: var(--bg-light);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .detail-card h4 {
+            color: var(--primary-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .market-comparison {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+        }
+
+        .market-comparison h4 {
+            color: white !important;
+            margin-bottom: 1rem;
+        }
+
+        .confidence-meter {
+            width: 100%;
+            height: 20px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: var(--accent-green);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .recommendation {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+        }
+
+        .recommendation.warning {
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+        }
+
+        .recommendation h4 {
+            color: white !important;
+            margin-bottom: 0.5rem;
+        }
+
+        .route-history {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .history-item {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e1e5e9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .route-info h4 {
+            margin-bottom: 0.5rem;
+        }
+
+        .route-meta {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .fuel-price-indicator {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            background: var(--accent-orange);
+            color: white;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .round-trip-summary {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+        }
+
+        .round-trip-summary h4 {
+            color: white !important;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                🚛 TrustedRoutes
+            </div>
+            <div class="nav-links">
+                <a class="nav-link active" onclick="showPage('dashboard')" id="nav-dashboard">Dashboard</a>
+                <a class="nav-link" onclick="showPage('analyzer')" id="nav-analyzer">Route Analyzer</a>
+                <a class="nav-link" onclick="showPage('export')" id="nav-export">Export</a>
+                <a class="nav-link" onclick="showPage('history')" id="nav-history">History</a>
+                <a class="nav-link" onclick="showPage('settings')" id="nav-settings">Settings</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <!-- Dashboard Page -->
+        <div id="dashboard" class="page active">
+            <div class="hero">
+                <h1>Welcome to TrustedRoutes</h1>
+                <p>Smart route analysis with round-trip planning and intelligent rate calculations</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalRoutes">0</div>
+                    <div class="stat-label">Routes Analyzed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="avgProfit">$0</div>
+                    <div class="stat-label">Average Profit</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="profitablePercent">0%</div>
+                    <div class="stat-label">Profitable Routes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="avgMarketRate">$0.00</div>
+                    <div class="stat-label">Avg Market Rate</div>
+                </div>
+            </div>
+
+            <div style="text-align: center;">
+                <h2 style="margin-bottom: 1rem;">Recent Route Analysis</h2>
+                <p style="color: var(--text-light); margin-bottom: 2rem;">No routes analyzed yet. Click "Analyze New Route" to get started!</p>
+                <button class="btn btn-large" onclick="showPage('analyzer')" id="analyzeNewBtn">Analyze New Route</button>
+            </div>
+        </div>
+
+        <!-- Enhanced Route Analyzer Page -->
+        <div id="analyzer" class="page">
+            <div class="hero">
+                <h1>Enhanced Route Analyzer</h1>
+                <p>Round-trip planning • Smart rate calculations • Export ready reports</p>
+            </div>
+
+            <div class="form-container">
+                <form id="routeForm">
+                    <!-- Initial Route Section -->
+                    <div class="form-section">
+                        <h3>🚛 Initial Route</h3>
+                        
+                        <div class="form-group">
+                            <label for="currentLocation">Current Location</label>
+                            <input type="text" id="currentLocation" placeholder="e.g., Dallas, TX" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="pickupLocation">Pickup Location</label>
+                                <input type="text" id="pickupLocation" placeholder="e.g., Los Angeles, CA" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="deliveryLocation">Delivery Location</label>
+                                <input type="text" id="deliveryLocation" placeholder="e.g., Atlanta, GA" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="loadRate">Load Rate ($ per mile) - Leave blank for rate calculation</label>
+                                <input type="number" id="loadRate" step="0.01" placeholder="e.g., 2.80 or leave blank">
+                            </div>
+                            <div class="form-group">
+                                <label for="equipmentType">Equipment Type</label>
+                                <select id="equipmentType">
+                                    <option value="dry_van">Dry Van</option>
+                                    <option value="reefer">Reefer</option>
+                                    <option value="flatbed">Flatbed</option>
+                                    <option value="step_deck">Step Deck</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="targetProfit">Target Profit (for rate calculation)</label>
+                                <input type="number" id="targetProfit" value="100" placeholder="e.g., 100">
+                            </div>
+                            <div class="form-group">
+                                <label for="profitType">Profit Type</label>
+                                <select id="profitType">
+                                    <option value="total">Total Profit ($)</option>
+                                    <option value="per_mile">Per Mile ($)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Return Route Section -->
+                    <div class="form-section">
+                        <h3>🔄 Return Route (Optional)</h3>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="includeReturn" onchange="toggleReturnRoute()">
+                            <label for="includeReturn">Include return route analysis</label>
+                        </div>
+
+                        <div id="returnRouteFields" style="display: none;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="returnPickup">Return Pickup Location</label>
+                                    <input type="text" id="returnPickup" placeholder="e.g., Atlanta, GA">
+                                </div>
+                                <div class="form-group">
+                                    <label for="returnDelivery">Return Delivery Location</label>
+                                    <input type="text" id="returnDelivery" placeholder="e.g., Dallas, TX">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="returnRate">Return Load Rate ($ per mile)</label>
+                                    <input type="number" id="returnRate" step="0.01" placeholder="e.g., 2.20 or leave blank">
+                                </div>
+                                <div class="form-group">
+                                    <label for="returnEquipment">Return Equipment Type</label>
+                                    <select id="returnEquipment">
+                                        <option value="dry_van">Dry Van</option>
+                                        <option value="reefer">Reefer</option>
+                                        <option value="flatbed">Flatbed</option>
+                                        <option value="step_deck">Step Deck</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-large" style="width: 100%;" id="analyzeButton">
+                        Analyze Route Profitability
+                    </button>
+                </form>
+
+                <!-- Rate Suggestion Display -->
+                <div id="rateSuggestion" class="rate-suggestion">
+                    <h4>💡 Smart Rate Suggestion</h4>
+                    <p id="rateSuggestionText"></p>
+                </div>
+            </div>
+
+            <div id="analysisResults" class="results-container" style="display: none;">
+                <!-- Enhanced results will be populated here -->
+            </div>
+        </div>
+
+        <!-- Export Page -->
+        <div id="export" class="page">
+            <div class="hero">
+                <h1>Export Analysis</h1>
+                <p>Generate professional reports for clients and record keeping</p>
+            </div>
+
+            <div id="exportContent">
+                <div id="noAnalysisMessage" class="form-container" style="text-align: center;">
+                    <h3 style="color: var(--text-light); margin-bottom: 1rem;">No Analysis Available</h3>
+                    <p style="color: var(--text-light); margin-bottom: 2rem;">
+                        Please analyze a route first to generate export reports.
+                    </p>
+                    <button class="btn btn-large" onclick="showPage('analyzer')">
+                        Go to Route Analyzer
+                    </button>
+                </div>
+
+                <div id="exportOptions" style="display: none;">
+                    <!-- Analysis Summary -->
+                    <div class="form-container">
+                        <h3 style="color: var(--primary-blue); margin-bottom: 1rem;">📊 Current Analysis</h3>
+                        <div id="analysisSummary">
+                            <!-- Analysis summary will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Export Options -->
+                    <div class="form-container">
+                        <h3 style="color: var(--primary-blue); margin-bottom: 1rem;">📄 Export Options</h3>
+                        
+                        <div class="route-details">
+                            <div class="detail-card">
+                                <h4>📊 Excel Spreadsheet</h4>
+                                <p style="margin-bottom: 1rem;">Comprehensive data export perfect for:</p>
+                                <ul style="margin-bottom: 1.5rem; padding-left: 1.5rem;">
+                                    <li>Financial analysis and calculations</li>
+                                    <li>Data manipulation and custom charts</li>
+                                    <li>Sharing with accounting/finance teams</li>
+                                    <li>Historical record keeping</li>
+                                </ul>
+                                <button class="btn btn-success" onclick="exportToExcel()" style="width: 100%;">
+                                    📊 Export to Excel (.csv)
+                                </button>
+                            </div>
+
+                            <div class="detail-card">
+                                <h4>📄 PDF Report</h4>
+                                <p style="margin-bottom: 1rem;">Professional formatted report ideal for:</p>
+                                <ul style="margin-bottom: 1.5rem; padding-left: 1.5rem;">
+                                    <li>Client presentations</li>
+                                    <li>Professional documentation</li>
+                                    <li>Email attachments</li>
+                                    <li>Print-ready formats</li>
+                                </ul>
+                                <button class="btn btn-secondary" onclick="generatePDFReport()" style="width: 100%;">
+                                    📄 Generate PDF Report
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Export History -->
+                        <div style="margin-top: 2rem;">
+                            <h4 style="color: var(--primary-blue); margin-bottom: 1rem;">📋 Recent Exports</h4>
+                            <div id="exportHistory" class="route-history">
+                                <div class="history-item">
+                                    <div class="route-info">
+                                        <h4>No exports yet</h4>
+                                        <div class="route-meta">Your exported files will appear here</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Export Settings -->
+                    <div class="form-container">
+                        <h3 style="color: var(--primary-blue); margin-bottom: 1rem;">⚙️ Export Settings</h3>
+                        
+                        <div class="form-group">
+                            <label for="companyName">Company Name (for reports)</label>
+                            <input type="text" id="companyName" placeholder="Your Company Name" value="RMTD Logistics">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="reportFormat">PDF Report Format</label>
+                                <select id="reportFormat">
+                                    <option value="detailed">Detailed Analysis</option>
+                                    <option value="summary">Executive Summary</option>
+                                    <option value="client">Client Presentation</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="includeMarketData">Include Market Data</label>
+                                <select id="includeMarketData">
+                                    <option value="yes">Yes - Include market analysis</option>
+                                    <option value="no">No - Financial data only</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button class="btn" onclick="saveExportSettings()">Save Export Settings</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Page -->
+        <div id="history" class="page">
+            <div class="hero">
+                <h1>Route History</h1>
+                <p>View your previous route analyses and export reports</p>
+            </div>
+
+            <div class="route-history" id="routeHistoryContainer">
+                <div class="history-item">
+                    <div class="route-info">
+                        <h4>No routes analyzed yet</h4>
+                        <div class="route-meta">Start analyzing routes to see your history here</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Page -->
+        <div id="settings" class="page">
+            <div class="hero">
+                <h1>Settings</h1>
+                <p>Configure your truck specifications and market preferences</p>
+            </div>
+
+            <div class="form-container">
+                <h3 style="margin-bottom: 1rem;">Truck Specifications</h3>
+                <div class="form-group">
+                    <label for="truckMpg">Truck MPG</label>
+                    <input type="number" id="truckMpg" value="6.5" step="0.1">
+                </div>
+
+                <div class="form-group">
+                    <label for="operatingCost">Base Operating Cost ($ per mile)</label>
+                    <input type="number" id="operatingCost" value="1.85" step="0.01">
+                </div>
+
+                <div class="form-group">
+                    <label for="driverPay">Driver Pay ($ per mile)</label>
+                    <input type="number" id="driverPay" value="0.55" step="0.01">
+                </div>
+
+                <div class="form-group">
+                    <label for="homeBase">Home Base</label>
+                    <input type="text" id="homeBase" value="Dallas, TX">
+                </div>
+
+                <button class="btn" onclick="saveSettings()">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
